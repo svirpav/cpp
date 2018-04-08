@@ -1,60 +1,42 @@
-#include <iostream>
-#include <fstream>
-#include <ctime>
-#include <string>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <netdb.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <unistd.h> //close();
+
+#define PORT "3040"
 
 using namespace std;
 
-#define PORT 8080
 
-char server_addres[256	] = "127.0.0.1";
+int main(){
 
-void clinent();
+	int sockfd;
 
-int main()
-{
-	
-
-	clinent();
-	return 0;
-}
-
-void clinent(){
-
-	int sockfd, n;
-	struct  sockaddr_in serv_addr;
-
+	struct addrinfo hints, *res;
 	char buffer[256];
+	int bytes_received;
+	int len;
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	cout << "Created socket :" << sockfd << endl;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
 
+	getaddrinfo(NULL, PORT, &hints, &res);
 
-	cout << "Clearing server address" << endl;
-	memset(&serv_addr, 0, sizeof(serv_addr));
-	
+	sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	connect(sockfd, res->ai_addr, res->ai_addrlen);
 
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(PORT);
+	len = sizeof(buffer);
+	bytes_received = recv(sockfd, buffer, len, 0);
+	cout << buffer << " : "<< bytes_received << " - Byres bytes_received."<< endl;
 
-	//inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
-	inet_aton(server_addres, &serv_addr.sin_addr);
-	cout << "Server addres - "<<inet_ntoa(serv_addr.sin_addr) << ":"<< htons(serv_addr.sin_port) << endl;
-
-
-	connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
-
-
-
-	cout << "Closing socket :" << sockfd << endl;
 	close(sockfd);
+	return 0;
 }
