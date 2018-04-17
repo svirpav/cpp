@@ -26,6 +26,7 @@ int main(int argc, char const *argv[]) {
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_PASSIVE;
 
+
   getaddrinfo(NULL, PORT, &hints, &res);
   struct sockaddr_in *server = (struct sockaddr_in *) res->ai_addr;
   cout << inet_ntop(res->ai_family, &(server->sin_addr), ip_str, sizeof(ip_str)) << ":" << ntohs(server->sin_port) << endl;
